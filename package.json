@@ -1,0 +1,23 @@
+{
+  "name": "geostats",
+  "version": "1.0.0",
+  "description": "statistics for geoguessr",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "geoguessr"
+  ],
+  "author": "nico",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "nedb-promises": "^5.0.0",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "fastify-cors": "^6.0.2"
+  }
+}
