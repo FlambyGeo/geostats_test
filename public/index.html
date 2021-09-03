@@ -33,12 +33,12 @@
         width: 800px;
       }
     </style>
-  <!------------------------------------------MLEGEND STYLES--------------------------------------------------------->                                                                                        
+  <!------------------------------------------LEGEND STYLES--------------------------------------------------------->                                                                                        
                                                                                                
 <style>
 .info {
     padding: 6px 8px;
-    font: 14px/16px Arial, Helvetica, sans-serif;
+    font: 12px/14px Arial, Helvetica, sans-serif;
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -49,12 +49,12 @@
     color: #777;
 }
  .legend {
-    line-height: 18px;
+    line-height: 14px;
     color: #555;
 }
 .legend i {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     float: left;
     margin-right: 8px;
     opacity: 0.7;
@@ -99,6 +99,47 @@
 } 
                                                                                              
 </style>
+                                                                                             
+ <style>
+    .styled-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+                                                                                                   
+   .styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+
+   .styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+}
+                                                                                          
+   .styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #dedede;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+                                                                                          
+.styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+                                                                                             
+
+  </style>                                                                                            
   </head>
                                                                                              
                                                                                              
@@ -136,13 +177,57 @@
 <!-- Tab content -->
 <div id="Countries" class="tabcontent">
       <div id="mapCountries"></div>
-    <div id="cStats"></div>
+    <div id="cStats">
+                    <table class="styled-table sortable" id="countryTable">
+    <thead>
+        <tr>
+            <th>Country</th>
+            <th>Round #</th>
+            <th>Avg Score</th>
+            <th>Avg Distance</th>                                                              
+            <th>Avg Time</th>
+        </tr>
+    </thead>
+    <tbody id="countryTableBody">
+    </tbody>
+</table>
+                    
+                    </div>
 </div>
 
 <div id="Markers" class="tabcontent">
   <div id="mapMarkers"></div>
-    <div id="t5"></div>
-    <div id="f5"></div>
+    <div id="t5">
+    <table class="styled-table" id="top5RoundTable">
+    <thead>
+        <tr>
+            <th>Score</th>
+            <th>Time</th>
+            <th>Distance</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody id="top5RoundBody">
+    </tbody>
+</table>
+
+                
+    </div>
+    <div id="f5">
+    <table class="styled-table" id="flop5RoundTable">
+    <thead>
+        <tr>
+            <th>Score</th>
+            <th>Time</th>
+            <th>Distance</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody id="flop5RoundBody">
+    </tbody>
+</table>
+                
+                </div>
 </div>
                                                                  
                                
@@ -237,46 +322,28 @@ function openTab(evt, cityName) {
         }
         console.log(JSON.stringify(top5));
         var flop5 = [];
-        var maxf5 = Math.max(0, dataReturned.length - 5);
+        var maxf5 = Math.max(0, dataReturned.length - 6);
         for (var i = dataReturned.length - 1; i > maxf5; i--) {
           flop5.push(dataReturned[i]);
         }
 
-        var t5String = " BEST ROUNDS top 5 \n";
+
         for (var i = 0; i < top5.length; i++) {
-          t5String = t5String.concat(
-            top5[i].distanceInMeters +
-              " m = " +
-              top5[i].roundScore +
-              " points in " +
-              top5[i].time +
-              " seconds at " +
-              top5[i].address +
-              "\n"
-          );
+          addRoundRow("top5RoundBody", top5[i].distanceInMeters,top5[i].roundScore, top5[i].time, top5[i].address);
+    
         }
 
-        document.getElementById("t5").innerHTML = t5String;
-
-        var f5String = " WORST ROUNDS flop 5 \n";
         for (var i = 0; i < flop5.length; i++) {
-          f5String = f5String.concat(
-            flop5[i].distanceInMeters +
-              " m = " +
-              flop5[i].roundScore +
-              " points in " +
-              flop5[i].time +
-              " seconds at " +
-              flop5[i].address +
-              "\n"
-          );
+          addRoundRow("flop5RoundBody", flop5[i].distanceInMeters,flop5[i].roundScore, flop5[i].time, flop5[i].address);
+    
         }
-        console.log(flop5.length);
-        document.getElementById("f5").innerHTML = f5String;
 
-        document.getElementById("cStats").innerHTML = JSON.stringify(
-          dataCountry
-        );
+  for(var propertyName in dataCountry) {
+        addCountryRow("countryTableBody",propertyName,dataCountry[propertyName].count,dataCountry[propertyName].meanScore,dataCountry[propertyName].meanDistanceInMeters,dataCountry[propertyName].meanTime);                        
+                                      
+        }
+
+        //document.getElementById("cStats").innerHTML = JSON.stringify(dataCountry);
         //console.log("geoJSON length" + dataGeoJSON.features.length);
         //console.log(dataGeoJSON);
                                       
@@ -284,6 +351,66 @@ function openTab(evt, cityName) {
         updateMarkers(dataReturned);
       }
     </script>
+   <!------------------------------------------TABLES ADDROWS--------------------------------------------------------->
+                                       
+     <script>                                 
+   function addRoundRow(tBodyID,distance,score,time,address) {
+  // Get a reference to the table
+  let tableRef = document.getElementById(tBodyID);
+
+  // Insert a row at the end of the table
+  let newRow = tableRef.insertRow();
+
+  // Insert a cell in the row at index 0
+                                      
+  var scoreCell = newRow.insertCell();
+  var scoreText = document.createTextNode(Math.round(score));
+  scoreCell.appendChild(scoreText);
+                                      
+  var timeCell = newRow.insertCell();
+  var timeText = document.createTextNode(showTime(time));
+  timeCell.appendChild(timeText);
+  
+  var distanceCell = newRow.insertCell();
+  var distanceText = document.createTextNode(showDistance(distance));
+  distanceCell.appendChild(distanceText);
+  
+  let addressCell = newRow.insertCell();
+  var addressText = document.createTextNode(address);
+  addressCell.appendChild(addressText);
+              
+}
+                                      
+  function addCountryRow(tBodyID,country,count,score,distance,time) {
+  // Get a reference to the table
+  let tableRef = document.getElementById(tBodyID);
+
+  // Insert a row at the end of the table
+  let newRow = tableRef.insertRow();
+                                      
+  var countryCell = newRow.insertCell();
+  var countryText = document.createTextNode(country);
+  countryCell.appendChild(countryText);
+
+  var countCell = newRow.insertCell();
+  var countText = document.createTextNode(count);
+  countCell.appendChild(countText);
+                                      
+  var scoreCell = newRow.insertCell();
+  var scoreText = document.createTextNode(Math.round(score));
+  scoreCell.appendChild(scoreText);
+                                      
+  var distanceCell = newRow.insertCell();
+  var distanceText = document.createTextNode(showDistance(distance));
+  distanceCell.appendChild(distanceText);                                    
+                                      
+  var timeCell = newRow.insertCell();
+  var timeText = document.createTextNode(showTime(time));
+  timeCell.appendChild(timeText);
+  
+              
+}
+  </script>
 
     <!------------------------------------------COLORS--------------------------------------------------------->
     
@@ -313,6 +440,53 @@ function openTab(evt, cityName) {
         return "#00eeff";
       }
     </script>
+                        
+    <!------------------------------------------UNIT TRANSLATION--------------------------------------------------------->
+       
+     <script>                   
+     function showTime(timeInSeconds) {
+              if (timeInSeconds < 1){
+                        var number = Math.round(timeInSeconds*1000)
+                        return number + " ms";
+                  }
+              if (timeInSeconds < 10){
+                        var number = Math.round(timeInSeconds*100)/100;
+                        return number + " s";
+                  }                                       
+              if (timeInSeconds < 60){
+                        var number = Math.round(timeInSeconds*10)/10;
+                        return number + " s";
+                  }    
+              var minutes = Math.round(timeInSeconds / 60);
+              var seconds = Math.round(timeInSeconds % 60);                                     
+              return minutes + "m " + seconds +"s";          
+      }
+                        
+    function showDistance(distanceInMeters){
+              if (distanceInMeters < 1) {
+                 return distanceInMeters*100 + " cm"                                   
+              }
+              if (distanceInMeters < 10) {
+                 var number = Math.round(distanceInMeters*100)/100;
+                 return number + " m";                                   
+              }
+             if (distanceInMeters < 100) {
+                 var number = Math.round(distanceInMeters*10)/10;
+                 return number + " m";                                   
+              }
+              if (distanceInMeters < 1000) {
+                 var number = Math.round(distanceInMeters);
+                 return number + " m";                                   
+              }
+             if (distanceInMeters < 10000) {
+                 var number = Math.round(distanceInMeters/10)/100;
+                 return number + " km";                                   
+              }
+              var number = Math.round(distanceInMeters/1000);
+              return number + " km";          
+    }
+                        
+     </script>                   
 
     <!------------------------------------------MAP WITH MARKERS FUNCTIONS--------------------------------------------------------->
     <script>
@@ -378,7 +552,7 @@ function openTab(evt, cityName) {
       
                        
       function drawMapC() {
-        mapC = L.map("mapCountries").setView([15, 0], 2);
+        mapC = L.map("mapCountries", {minZoom: 1, maxZoom : 6}).setView([15, 0], 2);
         const attribution =
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
         const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -441,8 +615,8 @@ function openTab(evt, cityName) {
         var str = feature.properties.ADMIN + ": ";
         str +=   feature.properties.count + " rounds <br>";
         str +=  "avg score : " + feature.properties.averageScore + "<br>";
-        //str +=  "avg distance : " + feature.properties.averageDistanceInMeters;
-        str += "avg time : " + feature.properties.averageTime + "<br>";
+        //str +=  "avg distance : " + showDistance(feature.properties.averageDistanceInMeters);
+        str += "avg time : " + showTime(feature.properties.averageTime) + "<br>";
         layer.bindPopup(
               str
         );
@@ -458,12 +632,9 @@ function openTab(evt, cityName) {
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < grades.length-1; i++) {
         var str =  '<i style="background:' + getcolor(grades[i] + 1) + '"></i> ' + grades[i] + '&ndash;' + grades[i + 1] + '<br>';                    
-        
-      //var str =   '<i class="circle" style="background:' + getcolor(grades[i]) + '"></i> ';                                                                   
-      console.log(str);
       div.innerHTML += str;
     }
-
+div.innerHTML += '<i style="background:' + getcolor(5000) + '"></i> ' + "5000" + '<br>'; 
     return div;
 };   
     legend.addTo(mapC);
